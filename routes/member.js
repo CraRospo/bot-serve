@@ -5,4 +5,6 @@ const memberController = require('../controllers/memberController')
 /* GET users listing. */
 router.get('/account', memberController.getMemberBanlance);
 
+router.post('/settle', memberController.settleAccount)
+
 module.exports = router;
