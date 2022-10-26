@@ -1,31 +1,68 @@
 const Member = require('../models/member')
 
-exports.getMemberBanlance = function(req, res, next) {
+// 获取账户详情
+function getMemberBanlance(req, res, next) {
   Member
-    .findOne({ nickName: req.query.name })
+    .findOne({ nickName: req.query.nickName })
     .exec(function (err, data) {
       if (err) { return next(err) }
-      //Successful, so render
-      console.log(data)
       res.send(data)
     });
 }
 
-exports.settleAccount = function(req, res, next) {
-  console.log(req.body)
+// 结算账户
+function settleAccount(req, res, next) {
   Member
     .findOne({ nickName: req.body.nickName })
-    .exec((err, member) => {
-      let settleBalance = member.balance + req.body.settleType * req.body.bet
-      settleBalance = settleBalance <= 0 ? 0 : settleBalance
+    .exec(function (err, data) {
+      if (err) { return next(err) } 
+      let result = data.balance + req.body.type * req.body.count
+      result = result <= 0 ? 0 : result
 
-      Member.where({ nickName: req.body.nickName }).updateOne({ balance: settleBalance  }).exec(err => {
-        if (err) {
-          return next(err)
-        } else {
-          console.log(123)
-        }
-      })
+      Member
+        .findOneAndUpdate(
+          {nickName: req.body.nickName },
+          { balance: result }
+        )
+        .exec(function(err) {
+          if (err) { return next(err) } 
+          res.send({ code: 0 })
+        })
     })
-  
+}
+
+// 领取低保
+function getDailyReward(req, res, next) {
+  console.log(req.body.nickName)
+  Member
+    .findOne({ nickName: req.body.nickName })
+    .exec(function (err, data) {
+      if (err) { return next(err) } 
+
+      if (data.balance >= 1000) { return res.send({ code: -1 }) }
+
+      if(!data.hasGetReward) {
+        let result = data.balance + 100
+
+        Member
+          .findOneAndUpdate(
+            { nickName: req.body.nickName },
+            { balance: result,
+              hasGetReward: true
+            }
+          )
+          .exec(function(err) {
+            if (err) { return next(err) } 
+            res.send({ code: 0 })
+          })
+      } else {
+        res.send({ code: 1 })
+      }
+    })
+}
+
+module.exports = {
+  getMemberBanlance,
+  settleAccount,
+  getDailyReward
 }

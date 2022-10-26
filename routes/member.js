@@ -7,4 +7,6 @@ router.get('/account', memberController.getMemberBanlance);
 
 router.post('/settle', memberController.settleAccount)
 
+router.post('/reward', memberController.getDailyReward)
+
 module.exports = router;

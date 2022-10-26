@@ -11,6 +11,7 @@ const MemberSchema = new Schema({
   balance: { type: Number, min: 0, default: 500 },
   chatId: String,
   isFreeze: { type: Boolean, default: false },
+  hasGetReward: { type: Boolean, default: false },
   createTime: { type: Date, default: Date.now },
   updateTime: { type: Date, default: Date.now }
 })
