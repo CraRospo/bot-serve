@@ -6,7 +6,21 @@ function getMemberBanlance(req, res, next) {
     .findOne({ nickName: req.query.nickName })
     .exec(function (err, data) {
       if (err) { return next(err) }
-      res.send(data)
+
+      if (data) {
+        res.send(data)
+      } else {
+        const instence = new Member({
+          nickName: req.query.nickName
+        })
+
+        instence
+          .save()
+          .exec(function(createErr) {
+            if (createErr) return next(createErr)
+            getMemberBanlance(req, res, next)
+          })
+      }
     });
 }
 
@@ -33,7 +47,6 @@ function settleAccount(req, res, next) {
 
 // 领取低保
 function getDailyReward(req, res, next) {
-  console.log(req.body.nickName)
   Member
     .findOne({ nickName: req.body.nickName })
     .exec(function (err, data) {
@@ -61,8 +74,22 @@ function getDailyReward(req, res, next) {
     })
 }
 
+// 重置奖励
+function resetReward() {
+  Member
+    .updateMany(
+      { hasGetReward: true },
+      { hasGetReward: false }
+    )
+    .exec(function (err, data) {
+      if (err) { return next(err) } 
+      console.log(data)
+    })
+}
+
 module.exports = {
   getMemberBanlance,
   settleAccount,
-  getDailyReward
+  getDailyReward,
+  resetReward
 }

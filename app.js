@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const { resetRewardStatusSchedule } = require('./schedule')
 
 var memberRouter = require('./routes/member');
 
@@ -50,5 +51,9 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+// 定时任务
+resetRewardStatusSchedule()
+
 
 module.exports = app;
