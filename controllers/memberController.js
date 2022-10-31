@@ -2,23 +2,23 @@ const Member = require('../models/member')
 
 // 获取账户详情
 function getMemberBanlance(req, res, next) {
+  const nickName = decodeURI(req.query.nickName)
   Member
-    .findOne({ nickName: req.query.nickName })
+    .findOne({ nickName })
     .exec(function (err, data) {
       if (err) { return next(err) }
 
       if (data) {
         res.send(data)
       } else {
-        const instence = new Member({
-          nickName: req.query.nickName
-        })
+        // Member.init()
+        const instence = new Member({ nickName })
 
         instence
-          .save()
-          .exec(function(createErr) {
+          .save(function(createErr, member) {
             if (createErr) return next(createErr)
-            getMemberBanlance(req, res, next)
+            res.send(member)
+
           })
       }
     });
@@ -35,7 +35,7 @@ function settleAccount(req, res, next) {
 
       Member
         .findOneAndUpdate(
-          {nickName: req.body.nickName },
+          { nickName: req.body.nickName },
           { balance: result }
         )
         .exec(function(err) {
@@ -60,7 +60,8 @@ function getDailyReward(req, res, next) {
         Member
           .findOneAndUpdate(
             { nickName: req.body.nickName },
-            { balance: result,
+            {
+              balance: result,
               hasGetReward: true
             }
           )
@@ -83,7 +84,6 @@ function resetReward() {
     )
     .exec(function (err, data) {
       if (err) { return next(err) } 
-      console.log(data)
     })
 }
 
